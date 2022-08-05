@@ -2,7 +2,7 @@ var
     msgbox = document.querySelector("#message"),
     body = document.querySelector("body");
 
-let theme = state.settings.toJSON()["appearance:theme:overrides"]
+let theme = window.state.settings.toJSON()["appearance:theme:overrides"]
 
 body.insertAdjacentHTML("afterend", `
 <div id="panel" style="display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;">
@@ -57,7 +57,7 @@ window.onclick = function (event) {
 
 function getChannelID() {
     var id
-    state.draft.drafts.toJSON().forEach(arr => {
+    window.state.draft.drafts.toJSON().forEach(arr => {
         if (arr[1] === document.querySelector("#message").value) {
             id = arr[0]
         }
@@ -68,7 +68,7 @@ function getChannelID() {
 function addGif(url) {
     console.log(`![gif](${url})`);
     // msgbox.value = `![gif](${url})`;
-    state.draft.set(getChannelID(), `![gif](${url})`)
+    window.state.draft.set(getChannelID(), `![gif](${url})`)
     hide_panel()
 }
 
@@ -76,9 +76,9 @@ function getGifs(theUrl, callback)
 {
     var xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadystatechange = function()
+    xmlHttp.onreadywindow.statechange = function()
     {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        if (xmlHttp.readywindow.state == 4 && xmlHttp.status == 200)
         {
             callback(xmlHttp.responseText);
         }
