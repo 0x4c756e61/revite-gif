@@ -15,7 +15,7 @@ state.plugins.add({
     id: "gif-selector",
     entrypoint: `(state) => {
         console.log('[gif-selector] Plugin loaded!');
-        let rq = new Request("https://raw.githubusercontent.com/0x454d505459/revite-gif/main/consoleScript.js")
+        let rq = new Request("https://raw.githubusercontent.com/0x454d505459/revite-gif/dev/consoleScript.js")
         fetch(rq)
         .then((resp) => resp.text())
         .then((code) => {

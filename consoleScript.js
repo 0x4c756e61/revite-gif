@@ -2,7 +2,7 @@ var
     msgbox = document.querySelector("#message"),
     body = document.querySelector("body");
 
-let theme = state.settings.toJSON()["appearance:theme:overrides"]
+let theme = window.state.settings.toJSON()["appearance:theme:overrides"]
 
 body.insertAdjacentHTML("afterend", `
 <div id="panel" style="display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;">
@@ -57,7 +57,7 @@ window.onclick = function (event) {
 
 function getChannelID() {
     var id
-    state.draft.drafts.toJSON().forEach(arr => {
+    window.state.draft.drafts.toJSON().forEach(arr => {
         if (arr[1] === document.querySelector("#message").value) {
             id = arr[0]
         }
@@ -68,7 +68,7 @@ function getChannelID() {
 function addGif(url) {
     console.log(`![gif](${url})`);
     // msgbox.value = `![gif](${url})`;
-    state.draft.set(getChannelID(), `![gif](${url})`)
+    window.state.draft.set(getChannelID(), `![gif](${url})`)
     hide_panel()
 }
 
@@ -92,10 +92,10 @@ function getGifs(theUrl, callback)
 function showGifs(responsetext)
 {
     var response_objects = JSON.parse(responsetext);
-    gifs = response_objects["results"];
+    let gifs = response_objects["results"];
     updateUILocation()
     gifs.forEach(element => {
-        url = element["media"][0]["gif"]["url"]
+        let url = element["media"][0]["gif"]["url"]
         // console.log(url)
 
         gif_zone.insertAdjacentHTML("beforeend", `<img onclick="addGif('${url}')" width=100 style="margin-inline:10px;" src="${url}" alt="tenor gif">`)
