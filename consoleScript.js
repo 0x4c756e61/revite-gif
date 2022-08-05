@@ -92,7 +92,7 @@ function getGifs(theUrl, callback)
 function showGifs(responsetext)
 {
     var response_objects = JSON.parse(responsetext);
-    gifs = response_objects["results"];
+    let gifs = response_objects["results"];
     updateUILocation()
     gifs.forEach(element => {
         url = element["media"][0]["gif"]["url"]
