@@ -76,7 +76,7 @@ function getGifs(theUrl, callback)
 {
     var xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadywindow.statechange = function()
+    xmlHttp.onreadystatechange = function()
     {
         if (xmlHttp.readywindow.state == 4 && xmlHttp.status == 200)
         {
