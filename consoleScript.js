@@ -4,25 +4,30 @@ var
 
 let theme = window.state.settings.toJSON()["appearance:theme:overrides"]
 
-body.insertAdjacentHTML("afterend", `
+var
+    bg = theme ? theme["background"] : "#242424"
+    accent = theme ? theme["accent"] : "#FD6671"
+
+let panelHTML = `
 <div id="panel" style="display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;">
-    <div class="content" style="background-color: ${theme["background"]};font-family: 'Source Code Pro';color: #000;border-radius: 10px;margin: auto;padding: 20px;border: 1px solid #888;width: 80%;">
-      <span id="cross" style="color: ${theme["accent"]};float: right;font-size: 28px;font-weight: bold;cursor: pointer;">&times;</span>
+    <div class="content" style="background-color: ${bg};font-family: 'Source Code Pro';color: #000;border-radius: 10px;margin: auto;padding: 20px;border: 1px solid #888;width: 80%;">
+      <span id="cross" style="color: ${accent};float: right;font-size: 28px;font-weight: bold;cursor: pointer;">&times;</span>
       <div id="gifs">
         
       </div>
-      
-<!-- Add "details" content here -->
+
     </div>
 </div>
-`);
+`
+
+body.insertAdjacentHTML("afterend", panelHTML);
 
 var 
     panel = document.querySelector("#panel"),
     closebtn = document.querySelector("#cross"),
     gif_zone = document.querySelector("#gifs");
 
-function updateUILocation() {
+document.updateUILocation = function() {
     msgbox = document.querySelector("#message");
     body = document.querySelector("body");
 
@@ -31,31 +36,31 @@ function updateUILocation() {
     gif_zone = document.querySelector("#gifs");
 }
 
-function hide_panel() {
-    updateUILocation()
+document.hide_panel = function() {
+    document.updateUILocation()
 	panel.style.display = 'none';
     gif_zone.innerHTML = "";
 	msgbox.focus();
 }
 
-function show_panel() {
-    updateUILocation()
+document.show_panel = function() {
+    document.updateUILocation()
 	panel.style.display = 'block';
 	msgbox.blur();
 
     closebtn.onclick = function () {
-        updateUILocation();
-        hide_panel();
+        document.updateUILocation();
+        document.hide_panel();
     }
 }
 
 window.onclick = function (event) {
-	if (event.target == panel) return hide_panel();
+	if (event.target == panel) return document.hide_panel();
 };
 
 
 
-function getChannelID() {
+document.getChannelID = function() {
     var id
     window.state.draft.drafts.toJSON().forEach(arr => {
         if (arr[1] === document.querySelector("#message").value) {
@@ -65,14 +70,14 @@ function getChannelID() {
     return id
 }
 
-function addGif(url) {
+document.addGif = function(url) {
     console.log(`![gif](${url})`);
     // msgbox.value = `![gif](${url})`;
-    window.state.draft.set(getChannelID(), `![gif](${url})`)
-    hide_panel()
+    window.state.draft.set(document.getChannelID(), `![gif](${url})`)
+    document.hide_panel()
 }
 
-function getGifs(theUrl, callback)
+document.getGifs = function(theUrl, callback)
 {
     var xmlHttp = new XMLHttpRequest();
 
@@ -89,11 +94,11 @@ function getGifs(theUrl, callback)
     return;
 }
 
-function showGifs(responsetext)
+document.showGifs = function(responsetext)
 {
     var response_objects = JSON.parse(responsetext);
     let gifs = response_objects["results"];
-    updateUILocation()
+    document.updateUILocation()
     gifs.forEach(element => {
         let url = element["media"][0]["gif"]["url"]
         // console.log(url)
@@ -105,39 +110,28 @@ function showGifs(responsetext)
 
 }
 
-function grab_data()
+document.grab_data = function()
 {
     // set the apikey
     var apikey = "LIVDSRZULELA";
     var search_url = `https://g.tenor.com/v1/search?q=${msgbox.value}&key=${apikey}&limit=50`
 
-    getGifs(search_url,showGifs);
+    document.getGifs(search_url,document.showGifs);
     console.log("grabbed")
     return;
 }
 
 
 window.onkeypress = (e => {
-    updateUILocation()
+    document.updateUILocation()
     panel.remove()
     
-    body.insertAdjacentHTML("afterend", `
-<div id="panel" style="display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;">
-    <div class="content" style="background-color: ${theme["background"]};font-family: 'Source Code Pro';color: #000;border-radius: 10px;margin: auto;padding: 20px;border: 1px solid #888;width: 80%;">
-      <span id="cross" style="color: ${theme["accent"]};float: right;font-size: 28px;font-weight: bold;cursor: pointer;">&times;</span>
-      <div id="gifs">
-        
-      </div>
-      
-<!-- Add "details" content here -->
-    </div>
-</div>
-`);
+    body.insertAdjacentHTML("afterend", panelHTML);
 
     if (e.key === "g" && e.ctrlKey && msgbox.value !== "") {
         console.log("[Gif-selector] Activated")
-        grab_data();
+        document.grab_data();
 
-        show_panel();
+        document.show_panel();
     }
 })
