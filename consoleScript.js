@@ -72,6 +72,7 @@ document.getChannelID = function() {
 document.addGif = function(url) {
     console.log(`![gif](${url})`);
     // msgbox.value = `![gif](${url})`;
+
     window.state.draft.set(document.getChannelID(), `![gif](${url})`);
     document.hide_panel();
 }
@@ -97,9 +98,11 @@ document.showGifs = function(responsetext)
 {
     var response_objects = JSON.parse(responsetext);
     let gifs = response_objects["results"];
+
     document.updateUILocation();
     gifs.forEach(element => {
         let url = element["media"][0]["gif"]["url"];
+
         // console.log(url)
 
         gif_zone.insertAdjacentHTML("beforeend", `<img onclick="addGif('${url}')" width=100 style="margin-inline:10px;" src="${url}" alt="tenor gif">`);
