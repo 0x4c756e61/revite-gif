@@ -1,5 +1,6 @@
 # revite-gif
 A revite plugin adding a gif selector
+\
 **Please note that this version is the legacy tenor build. It won't get any new updates. Please use the gifbox version under the dev branch.**
 
 ## Requirements
