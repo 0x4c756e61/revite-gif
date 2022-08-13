@@ -1,44 +1,74 @@
 var 
     msgbox = document.querySelector("#message"),
-    body = document.querySelector("body");
+    gifsSection = document.querySelector("#gifs");
 
 let theme = window.state.settings.toJSON()["appearance:theme:overrides"];
 
 let bg = theme ? theme["background"] : "#242424";
 let accent = theme ? theme["accent"] : "#FD6671";
 
-let panelHTML = `
-<div id="panel" style="display: none;position: fixed;z-index: 1;padding-top: 100px;left: 0;top: 0;width: 100%;height: 100%;overflow: auto;">
-    <div class="content" style="background-color: ${bg};font-family: 'Source Code Pro';color: #000;border-radius: 10px;margin: auto;padding: 20px;border: 1px solid #888;width: 80%;">
-      <span id="cross" style="color: ${accent};float: right;font-size: 28px;font-weight: bold;cursor: pointer;">&times;</span>
-      <div id="gifs">
-        
-      </div>
+document.createPanel = function()
+{
+let 
+    panel = document.createElement("div"),
+    content = document.createElement("div"),
+    cross = document.createElement("span"),
+    gifsSection = document.createElement("div");
 
-    </div>
-</div>
+panel.id = "panel";
+content.id = "content";
+cross.id = "cross";
+gifsSection.id = "gifs"
+
+cross.innerHTML = "&times;"
+
+panel.insertAdjacentElement("beforeend", content);
+content.insertAdjacentElement("beforeend", cross);
+content.insertAdjacentElement("beforeend", gifsSection);
+
+document.body.insertAdjacentElement("beforeend", panel);
+
+panel.style.cssText = `
+display: none;
+position: fixed;
+z-index: 1;
+padding-top: 100px;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+overflow: auto;
+`;
+content.style.cssText = `
+background-color: ${bg};
+font-family: 'Source Code Pro';
+color: #000;
+border-radius: 10px;
+margin: auto;
+padding: 20px;
+border: 1px solid #888;
+width: 80%;
 `;
 
-body.insertAdjacentHTML("afterend", panelHTML);
+cross.style.cssText = `
+color: ${accent};
+float: right;
+font-size: 28px;
+font-weight: bold;
+cursor: pointer;
+`;
+}
 
-var 
-    panel = document.querySelector("#panel"),
-    closebtn = document.querySelector("#cross"),
-    gif_zone = document.querySelector("#gifs");
+document.createPanel();
 
 document.updateUILocation = function() {
     msgbox = document.querySelector("#message");
-    body = document.querySelector("body");
-
-    panel = document.querySelector("#panel");
-    closebtn = document.querySelector("#cross");
-    gif_zone = document.querySelector("#gifs");
+    gifsSection = document.querySelector("#gifs");
 }
 
 document.hide_panel = function() {
     document.updateUILocation();
 	panel.style.display = 'none';
-    gif_zone.innerHTML = "";
 	msgbox.focus();
 }
 
@@ -47,7 +77,7 @@ document.show_panel = function() {
 	panel.style.display = 'block';
 	msgbox.blur();
 
-    closebtn.onclick = function () {
+    cross.onclick = function () {
         document.updateUILocation();
         document.hide_panel();
     }
@@ -56,8 +86,6 @@ document.show_panel = function() {
 window.onclick = function (event) {
 	if (event.target == panel) return document.hide_panel();
 };
-
-
 
 document.getChannelID = function() {
     var id
@@ -71,47 +99,39 @@ document.getChannelID = function() {
 
 document.addGif = function(url) {
     console.log(`![gif](${url})`);
-    // msgbox.value = `![gif](${url})`;
 
     window.state.draft.set(document.getChannelID(), `![gif](${url})`);
     document.hide_panel();
 }
 
-document.getGifs = function(theUrl, callback)
+document.getGifs = function()
 {
 
-    fetch(theUrl)
+    fetch(`https://api.gifbox.me/post/search?query=${msgbox.value}&limit=20&skip=0`)
     .then(r => r.json())
     .then(data => {
         document.updateUILocation();
         data["hits"].forEach(gifData => {
             let fileURL = `https://api.gifbox.me/file/posts/${gifData["file"]["fileName"]}`;
             let viewURL = `https://gifbox.me/view/${gifData["_id"]}-${gifData["slug"]}`;
-            gif_zone.insertAdjacentHTML("beforeend", `<img onclick="addGif('${viewURL}')" width=100 style="margin-inline:10px;" src="${fileURL}" alt="gifbox gif ${gifData["title"]}">`);
+
+            gifsSection.insertAdjacentHTML("beforeend", `<img onclick="addGif('${viewURL}')" width=100 style="margin-inline:10px;" src="${fileURL}" alt="gifbox gif ${gifData["title"]}">`);
         });
+        console.log("[gif-selector] fetched gifs");
     }).catch(e => console.log(e));
     
 }
-
-document.grab_data = function()
-{
-    var search_url = `https://api.gifbox.me/post/search?query=${msgbox.value}&limit=20&skip=0`
-
-    document.getGifs(search_url);
-    console.log("[gif-selector] grabbed");
-    return;
-}
-
 
 window.onkeypress = (e => {
     document.updateUILocation();
     panel.remove();
     
-    body.insertAdjacentHTML("afterend", panelHTML);
+    document.createPanel();
 
     if (e.key === "g" && e.ctrlKey && msgbox.value !== "") {
-        console.log("[Gif-selector] Activated");
-        document.grab_data();
+
+        gifsSection.innerHTML = "";
+        document.getGifs();
 
         document.show_panel();
     }
