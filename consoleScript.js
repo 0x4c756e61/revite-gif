@@ -79,47 +79,26 @@ document.addGif = function(url) {
 
 document.getGifs = function(theUrl, callback)
 {
-    var xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.onreadystatechange = function()
-    {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-        {
-            callback(xmlHttp.responseText);
-        }
-    }
-
-    xmlHttp.open("GET", theUrl, true);
-    xmlHttp.send(null);
-    return;
-}
-
-document.showGifs = function(responsetext)
-{
-    var response_objects = JSON.parse(responsetext);
-    let gifs = response_objects["results"];
-
-    document.updateUILocation();
-    gifs.forEach(element => {
-        let url = element["media"][0]["gif"]["url"];
-
-        // console.log(url)
-
-        gif_zone.insertAdjacentHTML("beforeend", `<img onclick="addGif('${url}')" width=100 style="margin-inline:10px;" src="${url}" alt="tenor gif">`);
-    });
-
-    return;
-
+    fetch(theUrl)
+    .then(r => r.json())
+    .then(data => {
+        document.updateUILocation();
+        data["hits"].forEach(gifData => {
+            let fileURL = `https://api.gifbox.me/file/posts/${gifData["file"]["fileName"]}`;
+            let viewURL = `https://gifbox.me/view/${gifData["_id"]}-${gifData["slug"]}`;
+            gif_zone.insertAdjacentHTML("beforeend", `<img onclick="addGif('${viewURL}')" width=100 style="margin-inline:10px;" src="${fileURL}" alt="gifbox gif ${gifData["title"]}">`);
+        });
+    }).catch(e => console.log(e));
+    
 }
 
 document.grab_data = function()
 {
-    // set the apikey
-    var apikey = "LIVDSRZULELA";
-    var search_url = `https://g.tenor.com/v1/search?q=${msgbox.value}&key=${apikey}&limit=50`;
+    var search_url = `https://api.gifbox.me/post/search?query=${msgbox.value}&limit=20&skip=0`
 
-    document.getGifs(search_url,document.showGifs);
-    console.log("grabbed");
+    document.getGifs(search_url);
+    console.log("[gif-selector] grabbed");
     return;
 }
 
@@ -136,4 +115,4 @@ window.onkeypress = (e => {
 
         document.show_panel();
     }
-})
+});
