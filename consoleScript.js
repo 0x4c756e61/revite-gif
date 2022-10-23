@@ -88,13 +88,7 @@ window.onclick = function (event) {
 };
 
 document.getChannelID = function() {
-    var id
-    window.state.draft.drafts.toJSON().forEach(arr => {
-        if (arr[1] === document.querySelector("#message").value) {
-            id = arr[0];
-        }
-    });
-    return id;
+    return window.location.href.split('/').slice(-1)[0];
 }
 
 document.addGif = function(url) {
